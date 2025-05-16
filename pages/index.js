@@ -4,9 +4,9 @@ import { useSession, signIn, signOut } from 'next-auth/react';
 
 export default function Home() {
   const { data: session } = useSession();
-  const [file, setFile]         = useState(null);
-  const [type, setType]         = useState('Booking Confirmation');
-  const [result, setResult]     = useState('');
+  const [file, setFile]     = useState(null);
+  const [type, setType]     = useState('Booking Confirmation');
+  const [result, setResult] = useState('');
 
   if (!session) {
     return (
@@ -25,14 +25,26 @@ export default function Home() {
     form.append('file', file);
     form.append('type', type);
 
-    const res  = await fetch('/api/upload', { method: 'POST', body: form });
+    // 发起请求
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: form
+    });
     console.log('🖥 /api/upload status =', res.status);
 
-    const json = await res.json();
+    // 打印返回的 JSON body
+    let json;
+    try {
+      json = await res.json();
+    } catch (e) {
+      console.error('🖥 Failed to parse JSON:', e);
+      alert('服务端返回了非 JSON 响应');
+      return;
+    }
     console.log('🖥 /api/upload response JSON =', json);
 
     if (!res.ok || !json.url) {
-      alert('上传失败或没有链接: ' + JSON.stringify(json));
+      alert('上传失败或未获取到链接: ' + JSON.stringify(json));
       return;
     }
     setResult(json.url);
@@ -40,7 +52,9 @@ export default function Home() {
 
   return (
     <div style={{ padding: '2rem', maxWidth: '600px', margin: 'auto' }}>
-      <button onClick={() => signOut()} style={{ marginBottom: '1rem' }}>Sign out</button>
+      <button onClick={() => signOut()} style={{ marginBottom: '1rem' }}>
+        Sign out
+      </button>
       <h1>Mypellet Uploader</h1>
 
       <label style={{ display: 'block', marginTop: '.5rem' }}>
@@ -66,7 +80,7 @@ export default function Home() {
       </label>
 
       <button onClick={upload} style={{ display: 'block', marginTop: '1rem' }}>
-        Upload &amp; Process
+        Upload & Process
       </button>
 
       {result && (
