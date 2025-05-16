@@ -38,6 +38,7 @@ export default async function handler(req, res) {
       const url = await appendToMasterSheet(
     { __type: docType, ...data },
     session.user.email
+  ); 
       console.log('✅ appendToMasterSheet returned URL =', url);
 
       // 返回给前端
