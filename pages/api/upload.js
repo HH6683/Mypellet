@@ -30,10 +30,17 @@ export default async function handler(req, res) {
       const docType = Array.isArray(fields.type) ? fields.type[0] : fields.type;
       console.log('🔍 [upload.js] docType =', docType);
 
+            // 解析完数据
       const data = await parseFile(buffer, docType, rawFile.originalFilename);
-      const url  = await createAndFillSheet(data, session.user.email);
+      console.log('✅ Parsed data:', data);
 
+      // 调用 Sheets API
+      const url = await createAndFillSheet(data, session.user.email);
+      console.log('✅ createAndFillSheet returned URL =', url);
+
+      // 返回给前端
       return res.status(200).json({ url });
+
     } catch (e) {
       console.error('Upload handler error:', e);
       return res.status(500).json({ error: e.message });
