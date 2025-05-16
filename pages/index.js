@@ -53,8 +53,8 @@ export default function Home() {
         <input type="file" onChange={e => setFile(e.target.files[0])} />
         <label>文件类型</label>
         <select value={type} onChange={e => setType(e.target.value)}>
-          <option>Booking Confirmation</option>
-          <option>Packing List</option>
+          <option value="Booking Confirmation">Booking Confirmation</option>
+          <option value="Packing List">Packing List</option>
         </select>
         <button onClick={upload} style={{ marginTop: 10 }}>
           Upload & Process
