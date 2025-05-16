@@ -1,6 +1,5 @@
-/* package.json */
 {
-  "name": "mypellet-complete",
+  "name": "mypelletbiomass",
   "version": "1.0.0",
   "scripts": {
     "dev": "next dev",
