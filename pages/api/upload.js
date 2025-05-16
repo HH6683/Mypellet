@@ -16,11 +16,17 @@ export default async function handler(req, res) {
 
   // 2. 解析 multipart/form-data
   const form = new IncomingForm();
-  form.parse(req, async (err, fields, files) => {
-    if (err) {
-      console.error('Form parse error:', err);
-      return res.status(500).json({ error: 'Form parse error' });
-    }
+form.parse(req, async (err, fields, files) => {
+  // …省略验证与文件读取…
+
+  // 规范下拉值，确保是单个字符串
+  const docType = Array.isArray(fields.type) ? fields.type[0] : fields.type;
+  console.log('🔍 [upload.js] received fields.type=', fields.type, 'docType=', docType);
+
+  // 传入 parseFile
+  const data = await parseFile(buffer, docType, rawFile.originalFilename);
+  // …
+});
     try {
       // 3. 取出上传的文件对象（兼容数组）
       const rawFile = Array.isArray(files.file) ? files.file[0] : files.file;
