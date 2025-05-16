@@ -36,8 +36,8 @@ export default async function handler(req, res) {
 
       // 调用 Sheets API
       const url = await appendToMasterSheet(
-  { __type: docType, …data },   // 在 data 里加个 __type 字段
-  session.user.email
+    { __type: docType, ...data },
+    session.user.email
       console.log('✅ appendToMasterSheet returned URL =', url);
 
       // 返回给前端
