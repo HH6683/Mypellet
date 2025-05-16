@@ -3,7 +3,7 @@ import fs from 'fs';
 import { IncomingForm } from 'formidable';
 import { getSession } from 'next-auth/react';
 import { parseFile } from '../../lib/parse';
-import { createAndFillSheet } from '../../lib/sheets';
+import { appendToMasterSheet } from '../../lib/sheets';
 
 export const config = { api: { bodyParser: false } };
 
@@ -35,8 +35,10 @@ export default async function handler(req, res) {
       console.log('✅ Parsed data:', data);
 
       // 调用 Sheets API
-      const url = await createAndFillSheet(data, session.user.email);
-      console.log('✅ createAndFillSheet returned URL =', url);
+      const url = await appendToMasterSheet(
+  { __type: docType, …data },   // 在 data 里加个 __type 字段
+  session.user.email
+      console.log('✅ appendToMasterSheet returned URL =', url);
 
       // 返回给前端
       return res.status(200).json({ url });
