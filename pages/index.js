@@ -14,13 +14,21 @@ export default function Home() {
     const form = new FormData();
     form.append('file', file);
     form.append('type', type);
-    const res = await fetch('/api/upload', { method: 'POST', body: form });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return alert('上传失败：' + (err.error || res.status));
-    }
-    const { url } = await res.json();
-    setResult(url);
+    const res = await fetch('/api/upload', {
+  method: 'POST',
+  body: form
+});
+
+// 先把 raw JSON 打出来
+const json = await res.json();
+console.log('↩️ /api/upload response:', json);
+
+// 然后再取 url
+if (!res.ok || !json.url) {
+  return alert('上传后没有拿到 Sheet 链接: ' + JSON.stringify(json));
+}
+setResult(json.url);
+
   };
 
   // 未登录时显示登录按钮
