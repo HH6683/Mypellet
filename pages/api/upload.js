@@ -1,37 +1,19 @@
-// pages/api/upload.js
-import fs from 'fs';
-import { IncomingForm } from 'formidable';
-import { getSession } from 'next-auth/react';
-import { parseFile } from '../../lib/parse';
-import { createAndFillSheet } from '../../lib/sheets';
+form.parse(req, async (err, fields, files) => {
+  // …前面不变…
+  try {
+    const rawFile = Array.isArray(files.file) ? files.file[0] : files.file;
+    const filePath = rawFile.filepath || rawFile.path;
+    const buffer = await fs.promises.readFile(filePath);
 
-export const config = { api: { bodyParser: false } };
+    // 统一取第一个元素，确保是字符串
+    const docType = Array.isArray(fields.type) ? fields.type[0] : fields.type;
 
-export default async function handler(req, res) {
-  const session = await getSession({ req });
-  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+    // 传入 string 类型的 docType
+    const data = await parseFile(buffer, docType, rawFile.originalFilename);
 
-  const form = new IncomingForm();
-  form.parse(req, async (err, fields, files) => {
-    if (err) return res.status(500).json({ error: 'Form parse error' });
-
-    try {
-      const rawFile = Array.isArray(files.file) ? files.file[0] : files.file;
-      const filePath = rawFile.filepath || rawFile.path;
-      const buffer = await fs.promises.readFile(filePath);
-
-      // ✅ 这里就是关键：给 parseFile 传三个参数
-      const data = await parseFile(
-        buffer,
-        fields.type,
-        rawFile.originalFilename
-      );
-
-      const url = await createAndFillSheet(data, session.user.email);
-      return res.status(200).json({ url });
-    } catch (e) {
-      console.error('Upload handler error:', e);
-      return res.status(500).json({ error: e.message });
-    }
-  });
-}
+    const url = await createAndFillSheet(data, session.user.email);
+    return res.status(200).json({ url });
+  } catch (e) {
+    // …
+  }
+});
