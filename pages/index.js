@@ -4,78 +4,79 @@ import { useSession, signIn, signOut } from 'next-auth/react';
 
 export default function Home() {
   const { data: session } = useSession();
-  const [file, setFile] = useState(null);
-  const [type, setType] = useState('Booking Confirmation');
-  const [result, setResult] = useState('');
+  const [file, setFile]         = useState(null);
+  const [type, setType]         = useState('Booking Confirmation');
+  const [result, setResult]     = useState('');
 
-  // 上传并模拟处理
-  const upload = async () => {
-    if (!file) return alert('请先选择文件');
-    const form = new FormData();
-    form.append('file', file);
-    form.append('type', type);
-    const res = await fetch('/api/upload', {
-  method: 'POST',
-  body: form
-});
-
-// 先把 raw JSON 打出来
-const json = await res.json();
-console.log('↩️ /api/upload response:', json);
-
-// 然后再取 url
-if (!res.ok || !json.url) {
-  return alert('上传后没有拿到 Sheet 链接: ' + JSON.stringify(json));
-}
-setResult(json.url);
-
-  };
-
-  // 未登录时显示登录按钮
   if (!session) {
     return (
-      <div style={{ padding: 20, textAlign: 'center' }}>
+      <div style={{ padding: '2rem', maxWidth: '600px', margin: 'auto' }}>
         <button onClick={() => signIn('google')}>Sign in with Google</button>
       </div>
     );
   }
 
-  // 登录后显示上传表单
+  const upload = async () => {
+    if (!file) {
+      alert('请先选择文件');
+      return;
+    }
+    const form = new FormData();
+    form.append('file', file);
+    form.append('type', type);
+
+    const res  = await fetch('/api/upload', { method: 'POST', body: form });
+    console.log('🖥 /api/upload status =', res.status);
+
+    const json = await res.json();
+    console.log('🖥 /api/upload response JSON =', json);
+
+    if (!res.ok || !json.url) {
+      alert('上传失败或没有链接: ' + JSON.stringify(json));
+      return;
+    }
+    setResult(json.url);
+  };
+
   return (
-    <div style={{ background: '#a9a9a9', minHeight: '100vh', padding: 20 }}>
-      <div
-        style={{
-          maxWidth: 600,
-          margin: 'auto',
-          background: '#fff',
-          padding: 20,
-          borderRadius: 8,
-          boxShadow: '0 0 10px rgba(0,0,0,0.1)'
-        }}
-      >
-        <div style={{ textAlign: 'right' }}>
-          <button onClick={() => signOut()}>Sign out</button>
-        </div>
-        <h1 style={{ textAlign: 'center' }}>Mypellet Uploader</h1>
-        <label>选择文件 (PDF / Excel)</label>
-        <input type="file" onChange={e => setFile(e.target.files[0])} />
-        <label>文件类型</label>
-        <select value={type} onChange={e => setType(e.target.value)}>
-          <option value="Booking Confirmation">Booking Confirmation</option>
-          <option value="Packing List">Packing List</option>
+    <div style={{ padding: '2rem', maxWidth: '600px', margin: 'auto' }}>
+      <button onClick={() => signOut()} style={{ marginBottom: '1rem' }}>Sign out</button>
+      <h1>Mypellet Uploader</h1>
+
+      <label style={{ display: 'block', marginTop: '.5rem' }}>
+        选择文件 (PDF / Excel)
+        <input
+          type="file"
+          accept=".pdf,.xlsx"
+          onChange={e => setFile(e.target.files[0])}
+          style={{ display: 'block', marginTop: '.5rem' }}
+        />
+      </label>
+
+      <label style={{ display: 'block', marginTop: '.5rem' }}>
+        文件类型
+        <select
+          value={type}
+          onChange={e => setType(e.target.value)}
+          style={{ display: 'block', marginTop: '.5rem' }}
+        >
+          <option>Booking Confirmation</option>
+          <option>Packing List</option>
         </select>
-        <button onClick={upload} style={{ marginTop: 10 }}>
-          Upload & Process
-        </button>
-        {result && (
-          <p style={{ marginTop: 20 }}>
-            ✔️ 成功！Google Sheet：<br />
-            <a href={result} target="_blank" rel="noreferrer">
-              {result}
-            </a>
-          </p>
-        )}
-      </div>
+      </label>
+
+      <button onClick={upload} style={{ display: 'block', marginTop: '1rem' }}>
+        Upload &amp; Process
+      </button>
+
+      {result && (
+        <p style={{ marginTop: '1rem' }}>
+          ✔️ Sheet 链接：{' '}
+          <a href={result} target="_blank" rel="noopener noreferrer">
+            {result}
+          </a>
+        </p>
+      )}
     </div>
   );
 }
