@@ -2,7 +2,7 @@
 import fs from 'fs';
 import { IncomingForm } from 'formidable';
 import { getSession } from 'next-auth/react';
-import { parseFile } from '../../lib/parse';
+import { parseFile } require '../../lib/parse';
 import { createAndFillSheet } from '../../lib/sheets';
 
 export const config = { api: { bodyParser: false } };
